@@ -1,1 +1,1 @@
-/usr/bin/python /logtail/data_server.py -g $1
+/usr/bin/python /logtail/data_server.py -g /tmp
