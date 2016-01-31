@@ -9,10 +9,11 @@ url_handlers = UrlHandler()
 cron = Cron()
 
 @cron.callback('logstream', 1000*0.1)
+@gen.coroutine
 def listen_to_log():
     for line in cron.api_call('stream_listen'):
         if line is not None:
-            LogFeed.broadcast(line)
+            yield LogFeed.broadcast(line)
 
 # Main Handlers
 class CachelessStaticHandler(web.StaticFileHandler):

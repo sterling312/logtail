@@ -1,8 +1,4 @@
-import redis
 import json
-import pandas as pd
-import numpy as np
-import apidir
 from filestream import FileStreamer
 
 class Registry(dict):

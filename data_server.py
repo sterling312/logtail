@@ -10,9 +10,7 @@ from jinja2 import Environment, PackageLoader
 from werkzeug.contrib.cache import SimpleCache
 from datetime import datetime
 from tornado import ioloop, log, autoreload, web, gen, websocket
-from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import cpu_count
-from sendemail import GmailHandler
 from html import HTML
 import req
 
@@ -104,10 +102,6 @@ class BaseHandler(web.RequestHandler):
         return self.application.cache
 
     @property
-    def pool(self):
-        return self.application.pool
-
-    @property
     def logger(self):
         return self.application.logger
 
@@ -168,20 +162,6 @@ class BaseHandler(web.RequestHandler):
             self.cache.delete(key)
             self.set_status(500)
 
-    def cached_api_call(self):
-        self.logger.debug(json.dumps(self.params))
-        if self.task and self.task in req.api.api_registry:
-            task = req.api.api_registry[self.task]
-        else:
-            self.write_error(404)
-            return
-        key = self.key
-        if self.cache.exists(key):
-            self.from_cache(key)
-        else:
-            self.logger.info('giving worker {}'.format(key))
-            self.pool.submit(task, **self.params).add_done_callback(self.callback)
-
     def render_template(self, html='embed.html', **kwargs):
         self.write(self.application.env.render_template(html, **kwargs))
 
@@ -239,7 +219,6 @@ class MainServer(web.Application):
         self.cache = cache
         if args.delete:
             self.clear_cache()
-        self.pool = ProcessPoolExecutor(args.worker)
         debug = logging.root.level==logging.DEBUG
         self.static = args.static if args.static.startswith('/') else os.path.join(CURRENT_DIR, args.static)
         static = [(r'/static/(.*)', req.CachelessStaticHandler, {'path': self.static})]
@@ -260,16 +239,13 @@ class MainServer(web.Application):
         elif hasattr(self.cache, '_cache'):
             self.cache._cache.clear()
 
-    def __del__(self):
-        self.pool.shutdown()
-
 if __name__ == '__main__':
     args = parser.parse_args()
     logging.basicConfig(level=args.level, format='%(asctime)s:%(levelname)s:%(module)s:%(funcName)s:%(lineno)s:%(message)s')
     logging.info(json.dumps(vars(args)))
     logging.info('running apis are {}'.format(req.url_handlers))
     try:
-        cache = redis.Redis(db=1)
+        cache = redis.Redis(host=os.environ['CACHE_PORT_6379_TCP_ADDR'])
         cache.scan()
     except redis.ConnectionError:
         cache = SimpleCache()
