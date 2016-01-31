@@ -247,7 +247,7 @@ if __name__ == '__main__':
     try:
         cache = redis.Redis(host=os.environ['CACHE_PORT_6379_TCP_ADDR'])
         cache.scan()
-    except redis.ConnectionError:
+    except (redis.ConnectionError, KeyError):
         cache = SimpleCache()
         def exists(key):
             return key in cache._cache
@@ -255,5 +255,4 @@ if __name__ == '__main__':
     server = MainServer(args, cache)
     server.start_cron()
     logging.info('running cron jobs are {}'.format(req.cron.keys()))
-    autoreload.add_reload_hook(server.__del__)
     loop = ioloop.IOLoop.instance().start()

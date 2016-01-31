@@ -1,3 +1,4 @@
+import sys
 import json
 from filestream import FileStreamer
 
@@ -9,7 +10,7 @@ class Registry(dict):
 api_registry = Registry()
 
 # File Streamer API
-stream = FileStreamer(path='.', callback=dummy, sleep=0, seek=0)
+stream = FileStreamer(path='.', callback=sys.stdout.write, sleep=0, seek=0)
 @api_registry.register
 def subscribe_log(filename, **kwargs):
     if isinstance(filename, (list, tuple)):
