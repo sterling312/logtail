@@ -16,6 +16,6 @@ COPY . /logtail
 RUN pip install -r /logtail/requirements.txt
 RUN chmod +x /logtail/startup.sh
 
-CMD /logtail/startup.sh
+ENTRYPOINT /logtail/startup.sh
 
 EXPOSE 8000
