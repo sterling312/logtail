@@ -2,7 +2,7 @@ import json
 import logging
 from urllib2 import urlparse
 from tornado import web, gen, log, websocket, httputil
-from data_server import UrlHandler, BaseHandler, BaseWSHandler, Cron, GmailHandler
+from data_server import UrlHandler, BaseHandler, BaseWSHandler, Cron 
 import api
 
 url_handlers = UrlHandler()
