@@ -9,7 +9,7 @@ RUN apt-get update
 RUN apt-get install -y git-core wget curl vim build-essential 
 
 # install s3cmd for python2.7
-RUN apt-get install -y python-pip
+RUN apt-get install -y python-pip python-lxml
 
 # copy repo
 COPY . /logtail
