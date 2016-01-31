@@ -15,7 +15,8 @@ RUN apt-get install -y python-pip python-lxml
 COPY . /logtail
 RUN pip install -r /logtail/requirements.txt
 RUN chmod +x /logtail/startup.sh
+VOLUME /var/log
 
-ENTRYPOINT /logtail/startup.sh
+CMD /logtail/startup.sh /var/log
 
 EXPOSE 8000
