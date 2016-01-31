@@ -3,6 +3,7 @@ import os
 import time
 import logging
 import argparse
+from collections import defaultdict
 
 CURDIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -13,7 +14,7 @@ parser.add_argument('-f', '--filename', required=True, help='tailing filename')
 
 class FileStreamer(object):
     filehandle = {}
-    listener = {}
+    listener = defaultdict(lambda :0)
     def __init__(self, path, callback=logging.info, sleep=1, seek=0, logger=logging.getLogger('root')):
         self.path = path
         self.logger = logger
@@ -41,15 +42,14 @@ class FileStreamer(object):
             return
         if os.path.isfile(fullpath):
             self.filehandle[filename] = self.tail(fullpath)
-            if filename in self.listener:
-                self.listener[filename] += 1
-            else:
-                self.listener[filename] = 1
+            self.listener[filename] += 1
+        else:
+            self.logger.error('file {} does not exist'.format(filename))
 
     def unsubscribe(self, filename):
         if filename in self.filehandle:
             del self.filehandle[filename]
-            self.listener[filename] -= 1
+            self.listener[filename] -= min(self.listener[filename], 1)
 
     def listen(self):
         for filename, count in self.listener.items():

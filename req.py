@@ -9,11 +9,10 @@ url_handlers = UrlHandler()
 cron = Cron()
 
 @cron.callback('logstream', 1000*0.1)
-@gen.coroutine
 def listen_to_log():
     for line in cron.api_call('stream_listen'):
         if line is not None:
-            yield LogFeed.broadcast(line)
+            LogFeed.broadcast(line)
 
 # Main Handlers
 class CachelessStaticHandler(web.StaticFileHandler):
@@ -89,7 +88,7 @@ class LogFeed(BaseWSHandler):
 
     def write_for_subscription(self, msg):
         if isinstance(msg, dict):
-            filename, msg = msg.itemss()[0]
+            filename, msg = msg.items()[0]
         else:
             filename, msg = json.loads(msg).items()[0]
         if filename == self.filename:

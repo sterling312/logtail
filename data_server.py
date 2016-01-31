@@ -66,7 +66,6 @@ class Cron(dict):
         def wrap(fn):
             callback = ioloop.PeriodicCallback(fn, time)
             self[name] = callback
-            callback
             return fn
         return wrap
 

@@ -1,6 +1,9 @@
 import sys
+import logging
 import json
 from filestream import FileStreamer
+
+logger = logging.getLogger(__name__)
 
 class Registry(dict):
     def register(self, fn):
@@ -8,9 +11,11 @@ class Registry(dict):
         return fn
 
 api_registry = Registry()
+def debug_log(msg):
+    logger.debug(json.dumps(msg))
 
 # File Streamer API
-stream = FileStreamer(path='.', callback=sys.stdout.write, sleep=0, seek=0)
+stream = FileStreamer(path='.', callback=debug_log, sleep=0, seek=0)
 @api_registry.register
 def subscribe_log(filename, **kwargs):
     if isinstance(filename, (list, tuple)):
